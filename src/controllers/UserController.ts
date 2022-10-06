@@ -13,7 +13,9 @@ export class UserController {
 		const userExists = await userRepository.findOneBy({ email });
 
 		if (userExists) {
-			throw new BadRequestError('E-mail já existe');
+			return res.status(400).json({
+				message: "user already exists"
+			})
 		}
 
 		const hashPassword = await hash(password, 10);
@@ -38,13 +40,17 @@ export class UserController {
 		const user = await userRepository.findOneBy({ email });
 
 		if (!user) {
-			throw new BadRequestError('E-mail ou senha inválidos');
+			return res.status(400).json({
+				message: "user not found"
+			})
 		}
 
 		const verifyPass = await compare(password, user.password);
 
 		if (!verifyPass) {
-			throw new BadRequestError('E-mail ou senha inválidos');
+			return res.status(400).json({
+				message: "email or password invalid"
+			})
 		}
 
 		const token = sign({ id: user.id }, process.env.JWT_PASS ?? '', {
